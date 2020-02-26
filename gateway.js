@@ -17,8 +17,48 @@ const projectEndpoints = config.get("projectEndpoints");
 
 
 const transactionIDBytes = 16;
-exports.verifySession = async function(username, token){
+exports.verifyAndSend = async function(resBuilder,serverConfig,path,{body, headers, query},method){
+    logger.log(`Verify Session`);
 
+    var requestHeaders = {
+        'Content-Type':'application/json'
+    };
+    
+    const options = {
+        host:idmServerConfig.host,
+        port:idmServerConfig.port,
+        path:"/idm/verifySession",
+        method:"POST",
+        headers:requestHeaders,
+    }
+    var sessionBody = {username:headers.username,sessionID:headers.session}
+    logger.log(options);
+    logger.log(sessionBody);
+    const serviceType = (options.port == 443) ? https : http;
+
+    const req = serviceType.request(options, (res)=>{
+        res.setEncoding('utf8');
+        res.on('data', async function (chunk) {
+            if(res.statusCode == 200){
+                logger.log("Session Verified")
+                return exports.sendRequest(resBuilder,serverConfig,path,{body,headers,query},method);
+            }else{
+                logger.log("Invalid Session");
+                resBuilder.res.status(res.statusCode);
+                logger.log(chunk);
+                resBuilder.json = JSON.parse(chunk);
+                return resBuilder.end();
+            }
+    });
+        
+    });
+    req.on('error', (err)=>{
+        logger.log("Error has occurred");
+        logger.log(err);
+    });
+    
+    req.write(JSON.stringify(sessionBody));
+    req.end();
 }
 exports.retrieveResponse = async function(resBuilder,transactionID){
     var query = `SELECT username,session_id,response,http_status FROM responses WHERE transaction_id=?;
@@ -74,7 +114,7 @@ exports.sendRequest = async function(resBuilder,serverConfig,path,{body, headers
         requestHeaders.username = headers.username;
     }
     if(typeof headers.session !== 'undefined'){
-        headers.session = headers.session;
+        requestHeaders.session = headers.session;
     }
 
     const options = {
