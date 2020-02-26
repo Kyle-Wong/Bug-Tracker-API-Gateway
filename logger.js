@@ -6,7 +6,7 @@ exports.log = function(text){
     if(typeof text == "object"){
         console.log(text);
     } else{
-        console.log(`[${date}] ${JSON.stringify(text)}`);
+        console.log(`[${date}]`+text);
     }
     fs.appendFile(logName,`[${date}] ${JSON.stringify(text)}\n`,function(err){if (err) throw err;});
 };

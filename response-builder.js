@@ -2,6 +2,7 @@ const errors = require('./errors');
 
 module.exports = class ResponseBuilder{
     constructor(res){
+        this.headers = {};
         this.res = res;
         this.json = {};
     }

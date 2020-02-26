@@ -10,17 +10,23 @@ const maxProjectNameLength = 32;
 
 
 exports.DONE = 0;
+exports.NO_RESPONSE_YET = 201;
 exports.ERROR = 400;
+exports.INVALID_TYPE = 403;
 exports.SESSION_NOT_FOUND = 408;
 exports.SESSION_IS_CLOSED = 409;
 exports.PROJECT_NOT_FOUND = 410;
 exports.INSUFFICIENT_ACCESS = 411;
 exports.USER_ALREADY_ASSIGNED = 412;
 exports.USER_ALREADY_ACCESSED = 413;
+exports.JSON_COUNT_MISMATCH = 414;
+exports.JSON_MISSING_PROPERTIES = 415;
+exports.MISSING_HEADER_USERNAME = 416;
+exports.MISSING_HEADER_SESSION = 417;
 exports.errorCode = 
 {
     0:"Done",
-
+    201:"No response yet",
 
     400:"Error",
     401:"Invalid Length",
@@ -36,6 +42,10 @@ exports.errorCode =
     411:"Insufficient Access Level",
     412:"User already assigned to bug",
     413:"User already has access to project",
+    414:"Json property count mismatch",
+    415:"Json missing properties",
+    416:"Missing header-Username",
+    417:"Missing header:Session",
 }
 exports.validUsername = function(username){
     if(typeof username != 'string')
@@ -77,5 +87,29 @@ exports.validProjectName = function(projectName){
         return 403;
     if(projectName.length < minProjectnameLength || projectName.length > maxProjectNameLength)
         return 401;
+    return 0;
+}
+exports.verifyJson = function(object,template){
+    const properties = Object.keys(template);
+    /*
+    if(Object.keys(object).length != properties.template){
+        return {type:exports.JSON_COUNT_MISMATCH,message:exports.errorCode[exports.JSON_COUNT_MISMATCH]};
+    }
+    */
+    for(var i = 0; i < properties.length; i++){
+        if(typeof object[properties[i]] != template[properties[i]]){
+            return {type:exports.INVALID_TYPE,
+                message:`${properties[i]}:Got ${typeof object[properties[i]]}, expected ${template[properties[i]]}`};
+        }
+    }
+    return {type:exports.DONE,message:""};
+}
+exports.verifyHeader = function(header){
+    if(typeof header.username === 'undefined'){
+        return exports.MISSING_HEADER_USERNAME;
+    }
+    if(typeof header.session === 'undefined'){
+        return exports.MISSING_HEADER_SESSION;
+    }
     return 0;
 }
