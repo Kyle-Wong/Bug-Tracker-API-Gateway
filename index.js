@@ -1,17 +1,18 @@
-const express = require('express')
-const util = require('util');
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
+const express = require("express");
+const cors = require("cors");
+const util = require("util");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const app = express();
 
-const fs = require('fs');
-const logger = require('./logger');
-const ResponseBuilder = require('./response-builder');
+const fs = require("fs");
+const logger = require("./logger");
+const ResponseBuilder = require("./response-builder");
 
-const config = require('config');
-const dbConfig = config.get('dbConfig');
+const config = require("config");
+const dbConfig = config.get("dbConfig");
 logger.log(dbConfig);
-const serverConfig = config.get('serverConfig');
+const serverConfig = config.get("serverConfig");
 logger.log(serverConfig);
 const idmServerConfig = config.get("idmServerConfig");
 logger.log(idmServerConfig);
@@ -22,22 +23,21 @@ logger.log(idmEndpoints);
 const projectEndpoints = config.get("projectEndpoints");
 logger.log(projectEndpoints);
 
-app.use(express.static('public'))
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json())
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
 
 const gateway = require("./gateway");
 const errors = require("./errors");
 
-app.get('/', function(req, res){
-    
-})
+app.get("/", function(req, res) {});
 
-var server = app.listen(serverConfig.port, function(){
+var server = app.listen(serverConfig.port, function() {
   var host = server.address().address;
   var port = server.address().port;
   logger.log(`Server listening at ${host}:${port}`);
-})
+});
 /*
 "idmEndpoints":{
   "register":"/idm/user/register",
@@ -64,103 +64,136 @@ var server = app.listen(serverConfig.port, function(){
   "resolveInvite":"/prjt/invite/resolve"
 }
 */
-app.get('/report', async function(req,res){
+app.get("/report", async function(req, res) {
   logger.log("Checking for response");
   var resBuilder = new ResponseBuilder(res);
   const transactionID = req.headers.transaction_id;
-  res.setHeader('requestDelay',serverConfig.requestDelay);
-  gateway.retrieveResponse(resBuilder,transactionID);
+  gateway.retrieveResponse(resBuilder, transactionID);
 });
 //IDM
-app.post(idmEndpoints.register, async function(req,res){
+app.post(idmEndpoints.register, async function(req, res) {
   const template = {
-    'username':'string',
-    'email':'string',
-    'password':'string',
-  }
+    username: "string",
+    email: "string",
+    password: "string"
+  };
   logger.log("Register User");
   var resBuilder = new ResponseBuilder(res);
   const body = req.body;
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
-  gateway.sendRequest(resBuilder,idmServerConfig,idmEndpoints.register,req,'POST');
+
+  gateway.sendRequest(
+    resBuilder,
+    idmServerConfig,
+    idmEndpoints.register,
+    req,
+    "POST"
+  );
 });
 
-app.post(idmEndpoints.login, async function(req,res){
+app.post(idmEndpoints.login, async function(req, res) {
   const template = {
-    'username':'string',
-    'password':'string',
-  }
+    username: "string",
+    password: "string"
+  };
   logger.log("Login User");
   var resBuilder = new ResponseBuilder(res);
   const body = req.body;
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
-  gateway.sendRequest(resBuilder,idmServerConfig,idmEndpoints.login,req,'POST');
+
+  gateway.sendRequest(
+    resBuilder,
+    idmServerConfig,
+    idmEndpoints.login,
+    req,
+    "POST"
+  );
 });
-app.post(idmEndpoints.verifySession, async function(req, res){
+app.post(idmEndpoints.verifySession, async function(req, res) {
   const template = {
-    'username':'string',
-    'sessionID':'string',
-  }
+    username: "string",
+    sessionID: "string"
+  };
   logger.log("Verify Session");
   var resBuilder = new ResponseBuilder(res);
   const body = req.body;
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
-  gateway.sendRequest(resBuilder,idmServerConfig,idmEndpoints.verifySession,req,'POST');
+
+  gateway.sendRequest(
+    resBuilder,
+    idmServerConfig,
+    idmEndpoints.verifySession,
+    req,
+    "POST"
+  );
 });
-app.post(idmEndpoints.verifyPrivilege, async function(req, res){
+app.post(idmEndpoints.verifyPrivilege, async function(req, res) {
   const template = {
-    'username':'string',
-    'requiredPrivilege':'number',
-  }
+    username: "string",
+    requiredPrivilege: "number"
+  };
   logger.log("Verify Privilege");
   var resBuilder = new ResponseBuilder(res);
   const body = req.body;
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
-  gateway.sendRequest(resBuilder,idmServerConfig,idmEndpoints.verifyPrivilege,req,'POST');
+
+  gateway.sendRequest(
+    resBuilder,
+    idmServerConfig,
+    idmEndpoints.verifyPrivilege,
+    req,
+    "POST"
+  );
 });
 //Project
-app.post(projectEndpoints.addProject, async function(req, res){
+app.post(projectEndpoints.addProject, async function(req, res) {
   const template = {
-    'project_name':'string',
-  }
+    project_name: "string"
+  };
   logger.log("Add Project");
   var resBuilder = new ResponseBuilder(res);
   const body = req.body;
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,projectEndpoints.addProject,req,'POST');
 
+  gateway.verifyAndSend(
+    resBuilder,
+    projectServerConfig,
+    projectEndpoints.addProject,
+    req,
+    "POST"
+  );
 });
-app.post(projectEndpoints.deleteProject, async function(req, res){
+app.post(projectEndpoints.deleteProject, async function(req, res) {
   const template = {
-    'project_id':'number',
-  }
+    project_id: "number"
+  };
   logger.log("Delete Project");
   const path = projectEndpoints.deleteProject;
   var resBuilder = new ResponseBuilder(res);
@@ -168,46 +201,48 @@ app.post(projectEndpoints.deleteProject, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.get(projectEndpoints.getProjectList, async function(req, res){
-  
+app.get(projectEndpoints.getProjectList, async function(req, res) {
   logger.log("Get Project List");
   const path = projectEndpoints.getProjectList;
   var resBuilder = new ResponseBuilder(res);
   const headers = req.headers;
   logger.log(headers);
   var err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'GET');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "GET");
 });
-app.get(projectEndpoints.getTagList, async function(req, res){
+app.get(projectEndpoints.getTagList, async function(req, res) {
   logger.log("Get Tag List");
   const path = projectEndpoints.getTagList;
   var resBuilder = new ResponseBuilder(res);
   const headers = req.headers;
   logger.log(headers);
   var err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'GET');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "GET");
 });
-app.post(projectEndpoints.addTag, async function(req, res){
+app.post(projectEndpoints.addTag, async function(req, res) {
   const template = {
-    'tag_name':'string',
-  }
+    tag_name: "string"
+  };
   logger.log("add Tag");
   const path = projectEndpoints.addTag;
   var resBuilder = new ResponseBuilder(res);
@@ -215,23 +250,24 @@ app.post(projectEndpoints.addTag, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.removeTag, async function(req, res){
+app.post(projectEndpoints.removeTag, async function(req, res) {
   const template = {
-    "project_id":'number',
-    "bug_id":'number',
-    'tag_names':'object',
-  }
+    project_id: "number",
+    bug_id: "number",
+    tag_names: "object"
+  };
   logger.log("Remove Tags");
   const path = projectEndpoints.removeTag;
   var resBuilder = new ResponseBuilder(res);
@@ -239,24 +275,25 @@ app.post(projectEndpoints.removeTag, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.addBug, async function(req, res){
+app.post(projectEndpoints.addBug, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'body':'string',
-    'priority':'number',
-    'tags':'object',
-  }
+    project_id: "number",
+    body: "string",
+    priority: "number",
+    tags: "object"
+  };
   logger.log("Adding Bug");
   const path = projectEndpoints.addBug;
   var resBuilder = new ResponseBuilder(res);
@@ -264,22 +301,23 @@ app.post(projectEndpoints.addBug, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.deleteBug, async function(req, res){
+app.post(projectEndpoints.deleteBug, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'bug_id':'number',
-  }
+    project_id: "number",
+    bug_id: "number"
+  };
   logger.log("Delete Bug");
   const path = projectEndpoints.deleteBug;
   var resBuilder = new ResponseBuilder(res);
@@ -287,22 +325,23 @@ app.post(projectEndpoints.deleteBug, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.resolveBug, async function(req, res){
+app.post(projectEndpoints.resolveBug, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'bug_id':'number',
-  }
+    project_id: "number",
+    bug_id: "number"
+  };
   logger.log("ResolveBug");
   const path = projectEndpoints.resolveBug;
   var resBuilder = new ResponseBuilder(res);
@@ -310,22 +349,23 @@ app.post(projectEndpoints.resolveBug, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.assignBug, async function(req, res){
+app.post(projectEndpoints.assignBug, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'bug_id':'number',
-  }
+    project_id: "number",
+    bug_id: "number"
+  };
   logger.log("Assign Bug");
   const path = projectEndpoints.assignBug;
   var resBuilder = new ResponseBuilder(res);
@@ -333,22 +373,23 @@ app.post(projectEndpoints.assignBug, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.unassignBug, async function(req, res){
+app.post(projectEndpoints.unassignBug, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'bug_id':'number',
-  }
+    project_id: "number",
+    bug_id: "number"
+  };
   logger.log("Unassign Bug");
   const path = projectEndpoints.unassignBug;
   var resBuilder = new ResponseBuilder(res);
@@ -356,22 +397,23 @@ app.post(projectEndpoints.unassignBug, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.getBugs, async function(req, res){
+app.post(projectEndpoints.getBugs, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'tags_filter':'object',
-  }
+    project_id: "number",
+    tags_filter: "object"
+  };
   logger.log("Get Bugs");
   const path = projectEndpoints.getBugs;
   var resBuilder = new ResponseBuilder(res);
@@ -379,37 +421,38 @@ app.post(projectEndpoints.getBugs, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.get(projectEndpoints.getInviteList, async function(req, res){
-  
+app.get(projectEndpoints.getInviteList, async function(req, res) {
   logger.log("Get Invitation List");
   const path = projectEndpoints.getInviteList;
   var resBuilder = new ResponseBuilder(res);
   const headers = req.headers;
   logger.log(headers);
-  
+
   var err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'GET');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "GET");
 });
-app.post(projectEndpoints.sendInvite, async function(req, res){
+app.post(projectEndpoints.sendInvite, async function(req, res) {
   const template = {
-    'project_id':'number',
-    'invited':'string',
-    'access_level':'number',
-  }
+    project_id: "number",
+    invited: "string",
+    access_level: "number"
+  };
   logger.log("Invite User to Project");
   const path = projectEndpoints.sendInvite;
   var resBuilder = new ResponseBuilder(res);
@@ -417,21 +460,22 @@ app.post(projectEndpoints.sendInvite, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-app.post(projectEndpoints.resolveInvite, async function(req, res){
+app.post(projectEndpoints.resolveInvite, async function(req, res) {
   const template = {
-    'project_id':'number',
-  }
+    project_id: "number"
+  };
   logger.log("Resolve Invite");
   const path = projectEndpoints.resolveInvite;
   var resBuilder = new ResponseBuilder(res);
@@ -439,16 +483,15 @@ app.post(projectEndpoints.resolveInvite, async function(req, res){
   const headers = req.headers;
   logger.log(body);
   logger.log(headers);
-  var err = errors.verifyJson(body,template);
-  if(err.type != 0){
+  var err = errors.verifyJson(body, template);
+  if (err.type != 0) {
     resBuilder.json["error"] = err.message;
     return resBuilder.default(err.type).end();
   }
   err = errors.verifyHeader(headers);
-  if(err != 0){
+  if (err != 0) {
     return resBuilder.default(err).end();
   }
-  gateway.verifyAndSend(resBuilder,projectServerConfig,path,req,'POST');
+
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "POST");
 });
-
-
