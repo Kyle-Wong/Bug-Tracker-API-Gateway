@@ -1,50 +1,50 @@
 {
-    "dbConfig":{
-        "host": "localhost",
-        "user": "root",
-        "password": "Hybrid023k",
-        "port": "3306",
-        "database": "bt_api",
-        "connectionLimit": "10",
-        "multipleStatements": true
-    },
-    
-    "serverConfig":{
-        "host": "localhost",
-        "port": "9874",
-        "requestDelay": "500"
-    },
+  "dbConfig": {
+    "host": "localhost",
+    "user": "root",
+    "password": "Hybrid023k",
+    "port": "3306",
+    "database": "bt_api",
+    "connectionLimit": "10",
+    "multipleStatements": true
+  },
 
-    "idmServerConfig":{
-        "host": "localhost",
-        "port": "9876"
-    },
-    "projectServerConfig":{
-        "host": "localhost",
-        "port": "9875"
-    },
-    "idmEndpoints":{
-        "register":"/idm/user/register",
-        "login":"/idm/user/login",
-        "verifySession":"/idm/verifySession",
-        "verifyPrivilege":"/idm/verifyPrivilege"
-    },
-    "projectEndpoints":{
-        "addUser":"/prjt/user/add",
-        "addProject":"/prjt/project/add",
-        "deleteProject":"/prjt/project/delete",
-        "getProjectList":"/prjt/prject/getAll",
-        "getTagList":"/prjt/tag/getAll",
-        "addTag":"/prjt/tag/add",
-        "removeTag":"/prjt/tag/remove",
-        "addBug":"/prjt/bug/add",
-        "deleteBug":"/prjt/bug/delete",
-        "resolveBug":"/prjt/bug/resolve",
-        "assignBug":"/prjt/bug/assign",
-        "unassignBug":"/prjt/bug/unassign",
-        "getBugs":"/prjt/bug/get",
-        "getInviteList":"/prjt/invite/getAll",
-        "sendInvite":"/prjt/invite/send",
-        "resolveInvite":"/prjt/invite/resolve"
-    }
+  "serverConfig": {
+    "host": "localhost",
+    "port": "9874",
+    "requestDelay": "100"
+  },
+
+  "idmServerConfig": {
+    "host": "localhost",
+    "port": "9876"
+  },
+  "projectServerConfig": {
+    "host": "localhost",
+    "port": "9875"
+  },
+  "idmEndpoints": {
+    "register": "/idm/user/register",
+    "login": "/idm/user/login",
+    "verifySession": "/idm/verifySession",
+    "verifyPrivilege": "/idm/verifyPrivilege"
+  },
+  "projectEndpoints": {
+    "addUser": "/prjt/user/add",
+    "addProject": "/prjt/project/add",
+    "deleteProject": "/prjt/project/delete",
+    "getProjectList": "/prjt/prject/getAll",
+    "getTagList": "/prjt/tag/getAll",
+    "addTag": "/prjt/tag/add",
+    "removeTag": "/prjt/tag/remove",
+    "addBug": "/prjt/bug/add",
+    "deleteBug": "/prjt/bug/delete",
+    "resolveBug": "/prjt/bug/resolve",
+    "assignBug": "/prjt/bug/assign",
+    "unassignBug": "/prjt/bug/unassign",
+    "getBugs": "/prjt/bug/get",
+    "getInviteList": "/prjt/invite/getAll",
+    "sendInvite": "/prjt/invite/send",
+    "resolveInvite": "/prjt/invite/resolve"
+  }
 }
