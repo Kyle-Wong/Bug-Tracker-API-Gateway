@@ -33,7 +33,7 @@
     "addUser": "/prjt/user/add",
     "addProject": "/prjt/project/add",
     "deleteProject": "/prjt/project/delete",
-    "getProjectList": "/prjt/prject/getAll",
+    "getProjectList": "/prjt/project/getAll",
     "getTagList": "/prjt/tag/getAll",
     "addTag": "/prjt/tag/add",
     "removeTag": "/prjt/tag/remove",

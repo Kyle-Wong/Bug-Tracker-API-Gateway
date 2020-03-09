@@ -65,7 +65,7 @@ var server = app.listen(serverConfig.port, function() {
 }
 */
 app.get("/report", async function(req, res) {
-  logger.log("Checking for response");
+  logger.log(`Checking for response:${req.headers.transaction_id}`);
   var resBuilder = new ResponseBuilder(res);
   const transactionID = req.headers.transaction_id;
   gateway.retrieveResponse(resBuilder, transactionID);

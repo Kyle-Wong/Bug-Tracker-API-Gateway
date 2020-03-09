@@ -78,7 +78,7 @@ exports.retrieveResponse = async function(resBuilder, transactionID) {
     const response = rows[0][0];
     logger.log(`response (${transactionID.slice(0, 8)}...):`);
     logger.log(response);
-    if (response.length == 0) {
+    if (!response) {
       //no response found
       return resBuilder.default(errors.NO_RESPONSE_YET).end();
     }
@@ -157,8 +157,9 @@ exports.sendRequest = async function(
     logger.log("Error has occurred");
     logger.log(err);
   });
-
-  req.write(JSON.stringify(body));
+  if (method !== "GET") {
+    req.write(JSON.stringify(body));
+  }
   req.end();
   resBuilder.json["transaction_id"] = transactionID;
   resBuilder.json["requestDelay"] = apiServerConfig.requestDelay;
