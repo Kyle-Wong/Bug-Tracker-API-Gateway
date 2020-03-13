@@ -164,7 +164,8 @@ app.post(idmEndpoints.verifyPrivilege, async function(req, res) {
 //Project
 app.post(projectEndpoints.addProject, async function(req, res) {
   const template = {
-    project_name: "string"
+    project_name: "string",
+    body: "string"
   };
   logger.log("Add Project");
   var resBuilder = new ResponseBuilder(res);
@@ -224,6 +225,21 @@ app.get(projectEndpoints.getProjectList, async function(req, res) {
     return resBuilder.default(err).end();
   }
 
+  gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "GET");
+});
+app.get(projectEndpoints.getProject, async function(req, res) {
+  logger.log("Get Project");
+  const path = projectEndpoints.getProject.replace(
+    ":projectID",
+    req.params.projectID
+  );
+  var resBuilder = new ResponseBuilder(res);
+  const headers = req.headers;
+  logger.log(headers);
+  var err = errors.verifyHeader(headers);
+  if (err != 0) {
+    return resBuilder.default(err).end();
+  }
   gateway.verifyAndSend(resBuilder, projectServerConfig, path, req, "GET");
 });
 app.get(projectEndpoints.getTagList, async function(req, res) {
@@ -411,8 +427,7 @@ app.post(projectEndpoints.unassignBug, async function(req, res) {
 });
 app.post(projectEndpoints.getBugs, async function(req, res) {
   const template = {
-    project_id: "number",
-    tags_filter: "object"
+    project_id: "number"
   };
   logger.log("Get Bugs");
   const path = projectEndpoints.getBugs;
